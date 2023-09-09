@@ -52,7 +52,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col bg-[#BACAE3] w-screen">
       <Nav auth={auth} />
-      <div className="flex-grow flex ">
+      <div className="flex-grow flex justify-center">
         <div style={{ marginTop: '0' }}>
         <h1>Leaderboard</h1>
         {/* Add leaderboard content here */}
