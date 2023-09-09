@@ -1,12 +1,16 @@
 // Import required libraries and modules
 import express, { Express } from "express"; // Import the Express.js framework for building web applications
+import * as bodyParser from "body-parser"; // Import bodyParser to use FormData
 import cors from "cors"; // Middleware for enabling Cross-Origin Resource Sharing (CORS)
 import dotenv from "dotenv"; // Library for managing environment variables
 import { Request, Response } from "express"; // Request and Response objects for handling HTTP requests
 import mongoose from "mongoose"; // Mongoose for MongoDB database interaction
 const User = require("./models/User.schema.ts"); // Import the User model from a separate module
+const multer = require("multer"); // Module for accepting FormData
+const Post = require("./models/Post.schema.ts"); // Import the Post model from a separate module
 
-// Import required libraries and modules...
+// Import the Multer upload module
+const upload = require("./upload.ts");
 
 // Create an instance of the Express application...
 const app = express();
@@ -56,10 +60,12 @@ app.post("/signup", (req: Request, res: Response) => {
     })
     .catch((err: Error) => {
       console.error(err);
+      res.status(500).json(err);
     });
 });
 
 // Route to get user points...
+// To get points, you need to create a new User object with the provided username
 app.get("/getpoints", (req: Request, res: Response) => {
   // Retrieve the number of points for a specific user
   const { username } = req.body;
@@ -75,6 +81,7 @@ app.get("/getpoints", (req: Request, res: Response) => {
 });
 
 // Route to get the leaderboard sorted by points...
+// To get the leaderboard just run a GET request to the /leaderboard endpoint
 app.get("/leaderboard", (req: Request, res: Response) => {
   // Retrieve all users and sort them by points in descending order
   User.find({})
@@ -82,6 +89,10 @@ app.get("/leaderboard", (req: Request, res: Response) => {
     .then((users: any) => {
       // Respond with the sorted list of users (leaderboard)
       res.json(users);
+    })
+    .catch((err: any) => {
+      console.log(err);
+      res.status(500).json(err);
     });
 });
 
@@ -108,8 +119,38 @@ app.post("/addpoints", (req: Request, res: Response) => {
       })
       .catch((err: Error) => {
         console.error(err);
+        res.status(500).json(err);
       });
   });
+});
+
+// Route to create a new post...
+app.post("/post", upload.single("file"), (req: Request, res: Response) => {
+  //@ts-ignore
+  const image = req.file;
+  const { username } = req.body;
+  const post = new Post({ username, image });
+  post
+    .save()
+    .then(() => {
+      res.json(post);
+    })
+    .catch((err: Error) => {
+      console.error(err);
+      res.status(500).json(err);
+    });
+});
+
+// Route to get all posts...
+app.get("/posts", (req: Request, res: Response) => {
+  Post.find({})
+    .then((posts: any) => {
+      res.json(posts);
+    })
+    .catch((err: Error) => {
+      console.error(err);
+      res.status(500).json(err);
+    });
 });
 
 // Start the server and listen on port 3000...
