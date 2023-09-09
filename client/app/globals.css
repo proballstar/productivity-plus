@@ -25,3 +25,10 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.active {
+  @apply bg-white rounded-full text-[#63b3ed];
+}
+
+
+.active {background: white; border-radius: 9999px; color: #63b3ed;}

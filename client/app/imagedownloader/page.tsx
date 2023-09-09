@@ -1,9 +1,9 @@
 "use client"
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { app } from '@/app/src/firebase';
-import { getAnalytics, initializeAnalytics, isSupported, logEvent,  } from 'firebase/analytics';
+import { getAnalytics, initializeAnalytics, isSupported, logEvent } from 'firebase/analytics';
 import Nav from '@/app/src/nav';
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import axios from 'axios';
@@ -15,51 +15,53 @@ import axios from 'axios';
 export default function Home() {
 
   const [auth, setAuth] = useState(false);
+  const [data, setdata] = useState({
+    address: "",
+    Balance: null,
+  });
   
-  const baseUrl = "https://cataas.com";
-  const randomCatUrl = `${baseUrl}/cat`;
 
-  onAuthStateChanged(getAuth(), (user) => {
-    if(user) {
-      setAuth(true);
-    } else {
-      setAuth(false);
-    }
-  })
-  useEffect(() => {
-    isSupported()
-      .then((isSupported: boolean) => {
-        if(isSupported) {
-          initializeAnalytics(app);
-
-          logEvent(getAnalytics(app), 'page_view')
-        }
-      })
-  })
+  function ImageDownloader({}) {
+    const baseUrl = "https://cataas.com";
+    const randomCatUrl = `${baseUrl}/cat`;
+    const downloadLinkRef = useRef<null | any>(null);
   
-  const handleDownload = async () => {
+    useEffect(() => {
+      // Ensure that the ref is available before setting its properties
+      if (downloadLinkRef.current) {
+        downloadLinkRef.current.style.display = 'none';
+      }
+    }, []);
+  
+  
+  const handleDownload = async (count: number) => {
     try {
-      const response = await axios.get(randomCatUrl, { responseType: 'blob' });
-      const catImageData = response.data;
+      for (let i = 0; i < count; i++) {
+        const response = await axios.get(randomCatUrl, { responseType: 'blob' });
+        const catImageData = response.data;
 
-      const blobUrl = window.URL.createObjectURL(catImageData);
+        // Create a Blob object from the image data
+        const blob = new Blob([catImageData], { type: 'image/jpeg' });
 
-      // Create an <a> element to trigger the download
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = 'random_cat.jpg';
+        // Create a temporary URL for the Blob
+        const blobUrl = window.URL.createObjectURL(blob);
 
-      // Programmatically click the <a> element to start the download
-      a.click();
+        // Set the download link's href and click it programmatically
+        if (downloadLinkRef.current) {
+          downloadLinkRef.current.href = blobUrl;
+          downloadLinkRef.current.download = `random_cat_${i + 1}.jpg`;
+          downloadLinkRef.current.click();
+        }
 
-      // Clean up the URL and remove the <a> element
-      window.URL.revokeObjectURL(blobUrl);
+        // Clean up the temporary URL
+        window.URL.revokeObjectURL(blobUrl);
+      }
     } catch (error) {
-      console.error("Failed to download the cat image:", error);
+      console.error("Failed to download cat images:", error);
     }
   };
-  
 
+ 
   
 
 
@@ -68,8 +70,10 @@ export default function Home() {
       <Nav page='Image Downloader' auth={auth} />
       <div className="flex-grow flex flex-col items-center justify-start">
         <h1>Image Downloader</h1>
-        <button onClick={handleDownload}>Download Cat Image</button>
+        <button onClick={() => handleDownload(5)}>Download 5 Cat Images</button>
+        <a ref={downloadLinkRef} style={{ display: 'none' }} />
       </div>
     </main>
   );
+}
 }
