@@ -3,16 +3,36 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react';
 import { app } from '@/src/firebase';
-import { getAnalytics, initializeAnalytics, isSupported, logEvent } from 'firebase/analytics';
-import Nav from '@/src/nav';
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { getAnalytics, initializeAnalytics, isSupported } from 'firebase/analytics';
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 
 
+function Nav({ auth }: { auth: boolean }) {
+  return (
+    <div className='ml-auto gap-8 items-start inline-flex pt-10 pr-10'>
+      <Link href="/">
+          Home
+        </Link>
+        <Link href="/leaderboard">
+          Leaderboard
+        </Link>
+        {auth && (
+          <Link href="/profile">
+            Profile
+          </Link>
+        )}
+        {!auth && (
+          <Link href="/login">
+            Login
+          </Link>
+        )}
+       
+    </div>
+  )
+}
 export default function Home() {
 
   const [auth, setAuth] = useState(false);
-  
-  const imgAdapt = 0.75
 
   onAuthStateChanged(getAuth(), (user) => {
     if(user) {
@@ -25,32 +45,23 @@ export default function Home() {
   useEffect(() => {
     isSupported()
       .then((isSupported: boolean) => {
-        if(isSupported) {
-          initializeAnalytics(app);
-          logEvent(getAnalytics(app), 'page_view')
-        }
+        initializeAnalytics(app);
       })
   })
 
   return (
     <main className="flex min-h-screen flex-col bg-[#BACAE3] w-screen">
       <Nav auth={auth} />
-      <div className='flex flex-row m-auto  gap-2'>
-        <div className='flex flex-col justify-center'>
-          <div className='text-8xl'>
-            <span className='text-black font-black'>Productivity</span>
-            <span className='text-transparent font-black bg-clip-text bg-gradient-to-r from-[#2A3757] to-[#7D9ABC]'>Plus</span>
-          </div>
-          <p className='font-normal text-xl'>Why be productive when you just cannot be?</p>
-        </div>
-        <div>
-          <Image src="/landingn.png" alt="Landing Page" width={928 * imgAdapt} height={529 * imgAdapt} />
+      <div className="flex-grow flex justify-center">
+        <div style={{ marginTop: '0' }}>
+        <h1>Leaderboard</h1>
+        {/* Add leaderboard content here */}
         </div>
       </div>
     </main>
-  )
+  );
+  
 }
-
 
 class Score {
   constructor(public name: string, public score: number) {}
