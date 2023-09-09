@@ -2,9 +2,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react';
-import { app } from '@/src/firebase';
+import { app } from '@/app/src/firebase';
 import { getAnalytics, initializeAnalytics, isSupported, logEvent } from 'firebase/analytics';
-import Nav from '@/src/nav';
+import Nav from '@/app/src/nav';
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
 
@@ -34,7 +34,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col bg-[#BACAE3] w-screen">
-      <Nav auth={auth} />
+      <Nav page='Home' auth={auth} />
       <div className='flex flex-row m-auto  gap-2'>
         <div className='flex flex-col justify-center'>
           <div className='text-8xl'>
