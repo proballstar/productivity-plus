@@ -1,4 +1,6 @@
+//@ts-ignore
 const mongoose = require("mongoose");
+//@ts-ignore
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
@@ -10,6 +12,9 @@ const UserSchema = new Schema({
   points: {
     type: Number,
     default: 0,
+  },
+  address: {
+    type: String,
   },
 });
 
