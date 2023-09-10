@@ -13,9 +13,14 @@ import Image from "next/image";
 import { app } from "@/app/src/firebase";
 
 function LoginUI() {
-  const [data, setData] = useState<{ email: string; password: string }>({
+  const [data, setData] = useState<{
+    email: string;
+    password: string;
+    address: string;
+  }>({
     email: "",
     password: "",
+    address: "",
   });
 
   async function loginEmail() {
@@ -52,7 +57,7 @@ function LoginUI() {
     } else {
       console.error("Metamask is not installed.");
     }
-  });
+  }, []);
 
   return (
     <div className="text-black">
@@ -88,7 +93,8 @@ function RegisterUI() {
     username: string;
     email: string;
     password: string;
-  }>({ username: "", email: "", password: "" });
+    wallet: string;
+  }>({ username: "", email: "", password: "", wallet: "" });
 
   async function register() {
     let user = await createUserWithEmailAndPassword(
@@ -103,6 +109,7 @@ function RegisterUI() {
     await fetch("http://localhost:5001/signup", {
       body: JSON.stringify({
         username: data.username,
+        address: data.address,
       }),
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
@@ -144,6 +151,18 @@ function RegisterUI() {
             setData((prevData) => ({ ...prevData, password: e.target.value }))
           }
           placeholder="Password"
+          className="bg-transparent outline-none text-black w-[80vw] px-2"
+        />
+      </div>
+      <div className="h-[70px] rounded-[50px] bg-[#F8F8F8]">
+        <Image src="key.svg" alt="Key" width={35} height={40} />
+        <input
+          type="text"
+          value={data.address}
+          onChange={(e) =>
+            setData((prevData) => ({ ...prevData, address: e.target.value }))
+          }
+          placeholder="Wallet Address"
           className="bg-transparent outline-none text-black w-[80vw] px-2"
         />
       </div>

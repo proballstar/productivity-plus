@@ -66,13 +66,21 @@ export default function Home() {
                   {leaderboard[0].points} Points
                 </h1>
                 @{leaderboard[0].username}
+                <button
+                  className="mt-5"
+                  onClick={() => {
+                    navigator.clipboard.writeText(leaderboard[0].address);
+                  }}
+                >
+                  Donate
+                </button>
                 <div
                   style={{ backgroundColor: leaderboard[0].color }}
                   className={`w-[7.5vw] h-[7.5vw]  absolute bottom-[29vh] rounded-full flex items-center justify-center`}
                 ></div>
               </div>
               <div className="w-[230px] h-[22vh] rounded-t-full bg-[#424F73] flex-col relative items-center justify-center flex">
-                <h1 className="font-bold text-[30px] mt-10">2nd</h1>
+                <h1 className="font-bold text-[30px] mt-10">3rd</h1>
                 <h1 className="text-xl text-[#d4d7de]">
                   {leaderboard[2].points} Points
                 </h1>

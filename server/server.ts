@@ -47,13 +47,14 @@ app.get("/", (req: Request, res: Response) => {
 // Route for user registration (sign up)...
 app.post("/signup", (req: Request, res: Response) => {
   // Extract the 'username' from the request body
-  const { username } = req.body;
+  const { username, address } = req.body;
 
   // Create a new User object with the provided username
   var randomColor = Math.floor(Math.random() * 16777215).toString(16);
   const user = new User();
   user.username = username;
   user.color = "#" + randomColor;
+  user.address = address;
 
   // Save the user to the database
   user
