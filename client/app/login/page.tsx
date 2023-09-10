@@ -1,75 +1,188 @@
-"use client"
+"use client";
 
-import { useState } from 'react';
-import { onAuthStateChanged, getAuth } from 'firebase/auth';
-import Nav from '@/app/src/nav';
-import Image from 'next/image';
-import { app } from '../src/firebase';
+import { useState, useEffect } from "react";
+import {
+  onAuthStateChanged,
+  getAuth,
+  updateProfile,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+import Nav from "@/app/src/nav";
+import Image from "next/image";
+import { app } from "@/app/src/firebase";
 
 function LoginUI() {
-    return (
-        <div>
-            <div className='h-[70px] rounded-[50px] bg-[#F8F8F8]'>
-                <Image src="user.svg" alt='Email' width={35} height={40}  />
-                <input placeholder='Email' className='bg-transparent outline-none w-full' />
-            </div>
-            <div className='h-[70px] rounded-[50px] bg-[#F8F8F8]'>
-                <Image src="key.svg" alt="Key" width={35} height={40} />
-                <input placeholder='Password' className='bg-transparent outline-none w-full' />
-            </div>
-        </div>
-    )
+  const [data, setData] = useState<{ email: string; password: string }>({
+    email: "",
+    password: "",
+  });
+
+  async function loginEmail() {
+    await signInWithEmailAndPassword(getAuth(app), data.email, data.password);
+  }
+
+  useEffect(() => {
+    // @ts-ignore
+    if (typeof window.ethereum !== "undefined") {
+      //@ts-ignore
+      const newWeb3 = new Web3(window.ethereum);
+      //@ts-ignore
+      setWeb3(newWeb3);
+
+      //@ts-ignore
+      window.ethereum
+        .request({ method: "eth_requestAccounts" })
+        //@ts-ignore
+        .then((accounts) => {
+          console.log("Connected to Metamask");
+          console.log("Metamask accounts:", accounts);
+        })
+        //@ts-ignore
+        .catch((error) => {
+          console.error("Metamask connection error:", error);
+        }); //@ts-ignore
+      window.ethereum.on("chainChanged", (chainId) => {
+        console.log("Metamask network changed:", chainId);
+      });
+      return () => {
+        //@ts-ignore
+        window.ethereum.removeAllListeners("chainChanged");
+      };
+    } else {
+      console.error("Metamask is not installed.");
+    }
+  });
+
+  return (
+    <div className="text-black">
+      <div className="h-[70px] r ounded-[50px] bg-[#F8F8F8] flex flex-row">
+        <Image src="user.svg" alt="Email" width={35} height={40} />
+        <input
+          placeholder="Email"
+          value={data.email}
+          onChange={(e) =>
+            setData((prevData) => ({ ...prevData, email: e.target.value }))
+          }
+          className="bg-transparent outline-none w-full"
+        />
+      </div>
+      <div className="h-[70px] rounded-[50px] bg-[#F8F8F8]">
+        <Image src="key.svg" alt="Key" width={35} height={40} />
+        <input
+          value={data.password}
+          onChange={(e) =>
+            setData((prevData) => ({ ...prevData, password: e.target.value }))
+          }
+          placeholder="Password"
+          className="bg-transparent outline-none w-full"
+        />
+      </div>
+      <button onClick={loginEmail}>Login</button>
+    </div>
+  );
 }
 
 function RegisterUI() {
-    return (
-        <div className='w-full'>
-            <div className='flex flex-row h-[70px] rounded-[50px] bg-[#F8F8F8]'>
-                <input placeholder='Username' className='bg-transparent outline-none w-full' />
-                <Image src="user.svg" alt='Email' width={35} height={40}  />
-            </div>
-            <div className='flex flex-row h-[70px] rounded-[50px] bg-[#F8F8F8]'>
-                <Image src="user.svg" alt='Email' width={35} height={40}  />
-                <input placeholder='Email' className='bg-red-300 outline-none w-[900px]' />
-            </div>
-            <div className='flex flex-row h-[70px] rounded-[50px] bg-[#F8F8F8]'>
-                <Image src="key.svg" alt="Key" width={35} height={40} />
-                <input placeholder='Password' className='bg-transparent outline-none w-[900px]' />
-            </div>
-        </div>
-    )
+  const [data, setData] = useState<{
+    username: string;
+    email: string;
+    password: string;
+  }>({ username: "", email: "", password: "" });
+
+  async function register() {
+    let user = await createUserWithEmailAndPassword(
+      getAuth(app),
+      data.email,
+      data.password
+    );
+
+    updateProfile(user.user, {
+      displayName: data.username,
+    });
+    await fetch("http://localhost:5001/signup", {
+      body: JSON.stringify({
+        username: data.username,
+      }),
+      method: "POST",
+      headers: new Headers({ "Content-Type": "application/json" }),
+    });
+  }
+
+  return (
+    <div>
+      {JSON.stringify(data)}
+      <div className="h-[70px] rounded-[50px] bg-[#F8F8F8]">
+        <Image src="user.svg" alt="Username" width={35} height={40} />
+        <input
+          value={data.username}
+          onChange={(e) =>
+            setData((prevData) => ({ ...prevData, username: e.target.value }))
+          }
+          placeholder="Username"
+          className="bg-transparent outline-none w-full text-black"
+        />
+      </div>
+      <div className="h-[70px] rounded-[50px] bg-[#F8F8F8]">
+        <Image src="user.svg" alt="Email" width={35} height={40} />
+        <input
+          type="email"
+          value={data.email}
+          onChange={(e) =>
+            setData((prevData) => ({ ...prevData, email: e.target.value }))
+          }
+          placeholder="Email"
+          className="bg-transparent outline-none w-full text-black"
+        />
+      </div>
+      <div className="h-[70px] rounded-[50px] bg-[#F8F8F8]">
+        <Image src="key.svg" alt="Key" width={35} height={40} />
+        <input
+          type="password"
+          value={data.password}
+          onChange={(e) =>
+            setData((prevData) => ({ ...prevData, password: e.target.value }))
+          }
+          placeholder="Password"
+          className="bg-transparent outline-none text-black w-[80vw] px-2"
+        />
+      </div>
+      <button onClick={register}>Register</button>
+    </div>
+  );
 }
 
 export default function Login() {
+  const [auth, setAuth] = useState(false);
+  const [check, setCheck] = useState<any>(false);
 
-    const [auth, setAuth] = useState(false);
-    const [curPage, setCurPage] = useState("Register");
+  onAuthStateChanged(getAuth(app), (user) => {
+    if (user) {
+      setAuth(true);
+    } else {
+      setAuth(false);
+    }
+  });
 
-    onAuthStateChanged(getAuth(app), (user) => {
-        if (user) {
-        setAuth(true);
-        } else {
-        setAuth(false);
-        }
-    });
-    return (
-        <div className="flex min-h-screen flex-col bg-[#BACAE3] w-screen">
-            {curPage}
-            <Nav auth={auth} page='Login' />
-            <div className='items-center justify-center flex flex-col space-y-6'>
-                <h1 className='font-extrabold text-6xl'>Welcome Back</h1>
-                <p className='text-xl font-normal'> Get ready to level up your procrastination</p>
-                <div className="bg-gray-200 text-sm text-gray-500 leading-none border-2 border-gray-200 rounded-full inline-flex">
-                    <button onClick={() => setCurPage("Login")} className={`inline-flex items-center transition-colors duration-300 ease-in focus:outline-none hover:text-blue-400 focus:text-blue-400 rounded-l-full px-4 py-2 ${curPage == "Login" ? "active" : ""}`} id="grid">
-                        <span>Login</span>
-                    </button>
-                    <button onClick={() => setCurPage("Register")} className={`inline-flex items-center transition-colors duration-300 ease-in focus:outline-none hover:text-blue-400 focus:text-blue-400 rounded-r-full px-4 py-2 ${curPage == "Register" ? "active" : ""}`} id="list">
-                        <span>Register</span>
-                    </button>
-                </div>
-                {curPage == "Login" && <LoginUI />}
-                {curPage == "Register" && <RegisterUI />}
-            </div>
+  return (
+    <div className="flex min-h-screen flex-col bg-[#BACAE3] w-screen">
+      <Nav auth={auth} page="Login" />
+      <div className="items-center justify-center flex flex-col space-y-6">
+        <h1 className="font-extrabold text-6xl">Welcome Back</h1>
+        <p className="text-xl font-normal">
+          {" "}
+          Get ready to level up your procrastination
+        </p>
+        <div>
+          {check ? (
+            <button onClick={() => setCheck(false)}>Login</button>
+          ) : (
+            <button onClick={() => setCheck(true)}>Register</button>
+          )}
         </div>
-    )
+        {check && <LoginUI />}
+        {!check && <RegisterUI />}
+      </div>
+    </div>
+  );
 }

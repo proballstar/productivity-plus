@@ -100,6 +100,11 @@ app.get("/leaderboard", (req: Request, res: Response) => {
 app.post("/addpoints", (req: Request, res: Response) => {
   // Extract 'username' and 'points' from the request body
   const { username, points } = req.body;
+  if (username == null) {
+    return;
+  }
+  console.log("what is");
+  console.log(req.body);
 
   // Find the user with the provided 'username' in the database
   User.findOne({ username }).then((user: any) => {
@@ -154,6 +159,6 @@ app.get("/posts", (req: Request, res: Response) => {
 });
 
 // Start the server and listen on port 3000...
-app.listen(3000, () => {
-  console.log(`App listening on port 3000`);
+app.listen(5001, () => {
+  console.log(`App listening on port 5001`);
 });

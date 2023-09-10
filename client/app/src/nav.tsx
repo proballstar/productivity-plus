@@ -18,6 +18,7 @@ export default function Nav({ auth, page }: { auth: boolean, page: string }) {
           <TLink name='Home' route='' page={page} />
           <TLink name='Leaderboard' route='leaderboard' page={page} />
           <TLink name='Image Downloader' route='imagedownloader' page={page} />
+          <TLink name='Start' route= 'home' page={page} />
           {auth && (
             <TLink route="profile" name="Profile"  page={page} />
           )}
