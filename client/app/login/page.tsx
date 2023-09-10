@@ -93,8 +93,8 @@ function RegisterUI() {
     username: string;
     email: string;
     password: string;
-    wallet: string;
-  }>({ username: "", email: "", password: "", wallet: "" });
+    address: string;
+  }>({ username: "", email: "", password: "", address: "" });
 
   async function register() {
     let user = await createUserWithEmailAndPassword(
