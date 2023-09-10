@@ -8,6 +8,7 @@ import mongoose from "mongoose"; // Mongoose for MongoDB database interaction
 const User = require("./models/User.schema.ts"); // Import the User model from a separate module
 const multer = require("multer"); // Module for accepting FormData
 const Post = require("./models/Post.schema.ts"); // Import the Post model from a separate module
+var randomColor = Math.floor(Math.random() * 16777215).toString(16);
 
 // Import the Multer upload module
 const upload = require("./upload.ts");
@@ -49,7 +50,10 @@ app.post("/signup", (req: Request, res: Response) => {
   const { username } = req.body;
 
   // Create a new User object with the provided username
-  const user = new User({ username });
+  var randomColor = Math.floor(Math.random() * 16777215).toString(16);
+  const user = new User();
+  user.username = username;
+  user.color = "#" + randomColor;
 
   // Save the user to the database
   user

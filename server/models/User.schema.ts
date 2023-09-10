@@ -13,6 +13,10 @@ const UserSchema = new Schema({
     type: Number,
     default: 0,
   },
+  color: {
+    type: String,
+    required: true,
+  },
   address: {
     type: String,
   },
